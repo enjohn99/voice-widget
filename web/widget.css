@@ -78,3 +78,10 @@ legend{font-size:11px;color:var(--muted)}
 .mrow button{font-size:11px;border:none;border-radius:8px;padding:5px 9px;cursor:pointer}
 .b-dl{background:#2a2a2e;color:var(--fg)} .b-sel{background:var(--accent);color:#fff}
 .b-active{background:var(--ok);color:#06281c} .prog{height:4px;background:var(--accent2);border-radius:2px;width:0}
+
+/* ---- speaking ripple on the COLLAPSED circle (continuous while speaking) ---- */
+.pill.speaking .mic::before,.pill.speaking .mic::after{
+  content:"";position:absolute;inset:-2px;border-radius:50%;border:2px solid var(--ok);
+  pointer-events:none;animation:ripple 1.6s ease-out infinite}
+.pill.speaking .mic::after{animation-delay:.8s}
+@keyframes ripple{0%{transform:scale(1);opacity:.65}80%{opacity:.08}100%{transform:scale(2);opacity:0}}
