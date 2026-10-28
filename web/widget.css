@@ -1,38 +1,58 @@
 :root{
   --bg:#1c1c1ee6; --fg:#f4f4f5; --muted:#a1a1aa; --accent:#6d5efc; --accent2:#22d3ee;
-  --rec:#f43f5e; --ok:#34d399; --radius:22px; --shadow:0 8px 30px rgba(0,0,0,.35);
+  --rec:#f43f5e; --ok:#34d399; --radius:18px; --shadow:0 10px 34px rgba(0,0,0,.42);
+  --circle:60px;
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",system-ui,sans-serif;
 }
 *{box-sizing:border-box}
 body{margin:0;background:transparent}
 
-/* floating pill, bottom-center, like OpenWhisper's peel */
-.pill{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);
-  display:flex;align-items:center;gap:10px;background:var(--bg);color:var(--fg);
-  backdrop-filter:blur(14px);border:1px solid #ffffff1a;border-radius:var(--radius);
-  box-shadow:var(--shadow);padding:8px 10px;transition:all .18s ease;max-width:92vw;z-index:9999}
-.pill.idle .pill-body{max-width:0;opacity:0;overflow:hidden;padding:0;margin:0}
-.pill:hover .pill-body,.pill.active .pill-body,.pill.open .pill-body{max-width:460px;opacity:1}
-.pill-body{display:flex;flex-direction:column;gap:6px;transition:all .18s ease}
+/* ---- compact circle, bottom-right, OpenWhisper-minimal ---- */
+.pill{position:fixed;right:22px;bottom:22px;z-index:9999;
+  width:var(--circle);height:var(--circle);display:grid;place-items:center;
+  transition:transform .16s ease}
+.pill:hover{transform:scale(1.04)}
 
-.mic{width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;flex:0 0 auto;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center}
-.mic .mic-icon{width:14px;height:20px;border-radius:7px;background:#fff;position:relative}
-.mic .mic-icon:after{content:"";position:absolute;left:50%;bottom:-8px;transform:translateX(-50%);
-  width:16px;height:8px;border:2px solid #fff;border-top:none;border-radius:0 0 9px 9px}
+/* the mic IS the collapsed widget: a tight circle with a status ring */
+.mic{width:var(--circle);height:var(--circle);border-radius:50%;border:none;cursor:pointer;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;
+  box-shadow:var(--shadow),0 0 0 0 transparent;transition:box-shadow .2s ease;position:relative}
+.mic .mic-icon{width:16px;height:22px;border-radius:8px;background:#fff;position:relative}
+.mic .mic-icon:after{content:"";position:absolute;left:50%;bottom:-9px;transform:translateX(-50%);
+  width:18px;height:9px;border:2px solid #fff;border-top:none;border-radius:0 0 10px 10px}
+/* status ring around the circle */
 .pill.listening .mic{background:var(--rec);animation:pulse 1.2s infinite}
-@keyframes pulse{0%{box-shadow:0 0 0 0 #f43f5e66}70%{box-shadow:0 0 0 10px #f43f5e00}100%{box-shadow:0 0 0 0 #f43f5e00}}
+.pill.speaking .mic{box-shadow:var(--shadow),0 0 0 4px #34d39955}
+@keyframes pulse{0%{box-shadow:var(--shadow),0 0 0 0 #f43f5e66}70%{box-shadow:var(--shadow),0 0 0 12px #f43f5e00}100%{box-shadow:var(--shadow),0 0 0 0 #f43f5e00}}
 
-.wave{width:180px;height:28px;display:block}
-.status{font-size:12px;color:var(--muted)}
+/* tiny status dot on the circle's corner */
+.pill:after{content:"";position:absolute;top:2px;right:2px;width:12px;height:12px;border-radius:50%;
+  background:var(--muted);border:2px solid #14131a;opacity:.0;transition:opacity .2s}
+.pill.active:after{opacity:1}
+.pill.listening:after{background:var(--rec);opacity:1}
+.pill.speaking:after{background:var(--ok);opacity:1}
+
+/* ---- expanded popover card, floats ABOVE the circle on hover/active/open ---- */
+.pill-body{position:absolute;right:0;bottom:calc(var(--circle) + 12px);width:268px;
+  display:flex;flex-direction:column;gap:8px;background:var(--bg);color:var(--fg);
+  backdrop-filter:blur(14px);border:1px solid #ffffff1a;border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:12px;
+  opacity:0;transform:translateY(8px) scale(.96);transform-origin:bottom right;pointer-events:none;
+  transition:opacity .16s ease,transform .16s ease}
+.pill:hover .pill-body,.pill.active .pill-body,.pill.open .pill-body{
+  opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
+
+.wave{width:100%;height:30px;display:block;background:#00000026;border-radius:9px}
+.status{font-size:12px;color:var(--muted);font-weight:600}
 .pill.listening .status{color:var(--rec)} .pill.speaking .status{color:var(--ok)}
-.partial{font-size:13px;min-height:16px;max-width:440px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.partial{font-size:13px;min-height:16px;max-height:34px;overflow:hidden;color:var(--fg);line-height:1.3}
 .row{display:flex;gap:8px;align-items:center}
-.sel{flex:1;background:#2a2a2e;color:var(--fg);border:1px solid #ffffff1f;border-radius:10px;padding:5px 8px;font-size:12px}
-.gear{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer}
+.sel{flex:1;background:#2a2a2e;color:var(--fg);border:1px solid #ffffff1f;border-radius:10px;padding:6px 8px;font-size:12px}
+.gear{background:#2a2a2e;border:1px solid #ffffff1f;color:var(--muted);font-size:15px;cursor:pointer;
+  width:32px;height:32px;border-radius:10px;flex:0 0 auto}
 
-/* drawer */
-.drawer{position:fixed;right:18px;bottom:80px;width:360px;max-height:72vh;overflow:auto;
+/* ---- drawer (settings + model manager), unchanged behavior ---- */
+.drawer{position:fixed;right:22px;bottom:94px;width:360px;max-height:72vh;overflow:auto;
   background:var(--bg);backdrop-filter:blur(14px);color:var(--fg);border:1px solid #ffffff1a;
   border-radius:16px;box-shadow:var(--shadow);padding:14px;z-index:10000}
 .drawer.hidden,.hidden{display:none}
