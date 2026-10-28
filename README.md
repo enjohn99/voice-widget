@@ -11,12 +11,21 @@ so the same build points at a company deployment or a personal workstation by sw
 
 ## Quick start
 
-**macOS / Linux**
+**macOS**
 ```bash
-./setup.sh
+./setup.sh                       # also brew-installs espeak-ng + portaudio
 .venv/bin/python server/fetch_models.py --kokoro --voice af_heart
 .venv/bin/python server/fetch_models.py --stt-browser whisper-base-onnx
-./run.command            # opens http://127.0.0.1:8730/
+./run.command                    # opens http://127.0.0.1:8730/
+```
+
+**Linux**
+```bash
+sudo apt install espeak-ng       # or: sudo dnf install espeak-ng | sudo pacman -S espeak-ng
+./setup.sh                       # needs Python 3.10-3.12; installs the CPU torch wheel
+.venv/bin/python server/fetch_models.py --kokoro --voice af_heart
+.venv/bin/python server/fetch_models.py --stt-browser whisper-base-onnx
+./run-linux.sh                   # background bridge + xdg-open; stop with ./stop-linux.sh
 ```
 
 **Windows (PowerShell / Explorer)**
@@ -97,6 +106,8 @@ voice-widget/
 ├── setup.ps1 / setup.bat    # Windows install (py launcher, venv, CPU torch, deps)
 ├── run.ps1 / run.bat        # double-clickable Windows launcher
 ├── stop.bat                 # stops the Windows bridge
+├── run-linux.sh             # Linux launcher (nohup bridge, /health wait, xdg-open)
+├── stop-linux.sh            # stops only the bridge
 ├── LICENSE                  # MIT (your code)
 ├── NOTICE                   # attribution
 ├── THIRD_PARTY_LICENSES.md  # verified licenses + GPL/espeak-ng redistribution notes
@@ -110,7 +121,7 @@ voice-widget/
 │   ├── config.example.json  # copy → config.json; documented, localhost defaults
 │   ├── .env.example         # every config key as an env override
 │   ├── requirements.txt
-│   ├── run.sh               # headless/advanced start (mac/Linux)
+│   ├── run.sh               # foreground start (mac/Linux)
 │   └── run.ps1              # headless/advanced start (Windows)
 └── web/
     ├── index.html           # OpenWhisper-style floating pill + settings/model drawer
@@ -122,41 +133,52 @@ voice-widget/
 
 ---
 
-## Setup — macOS/Linux and Windows
+## Setup — macOS, Windows, Linux
 
-| Step | macOS / Linux | Windows 10/11 |
-|---|---|---|
-| 1. Prereqs | Python 3.10–3.12, Homebrew (mac) | Python 3.10–3.12 from python.org with the **py launcher** (`winget install Python.Python.3.12`) |
-| 2. espeak-ng (GPL, separate install) | `setup.sh` runs `brew install espeak-ng` (Linux: `apt install espeak-ng`) | `choco install espeak-ng` **or** the `espeak-ng.msi` (X64) from github.com/espeak-ng/espeak-ng/releases |
-| 3. Install | `./setup.sh` | double-click `setup.bat` (or `powershell -ExecutionPolicy Bypass -File .\setup.ps1`) |
-| 4. Fetch models | `.venv/bin/python server/fetch_models.py --kokoro --voice af_heart`<br>`.venv/bin/python server/fetch_models.py --stt-browser whisper-base-onnx` | `.venv\Scripts\python server\fetch_models.py --kokoro --voice af_heart`<br>`.venv\Scripts\python server\fetch_models.py --stt-browser whisper-base-onnx` |
-| 5. Launch | double-click `run.command` (or `./server/run.sh`) | double-click `run.bat` (or `.\server\run.ps1`); stop with `stop.bat` |
-| 6. Use | open `http://127.0.0.1:8730/`, allow mic, pick agent, talk | same |
+| Step | macOS | Windows 10/11 | Linux |
+|---|---|---|---|
+| 1. Python | 3.10–3.12 (setup.sh can brew-install 3.12) | 3.10–3.12 with the **py launcher** | 3.10–3.12 (`apt install python3.12 python3.12-venv`, `dnf install python3.12`, or pyenv) |
+| 2. espeak-ng (GPL, separate) | `brew install espeak-ng` (done by setup.sh) | `choco install espeak-ng` or `espeak-ng.msi` (X64) | `sudo apt install espeak-ng` / `sudo dnf install espeak-ng` / `sudo pacman -S espeak-ng` (setup.sh only detects + prints this) |
+| 3. Install | `./setup.sh` | `setup.bat` | `./setup.sh` |
+| 4. Models | `.venv/bin/python server/fetch_models.py ...` | `.venv\Scripts\python server\fetch_models.py ...` | `.venv/bin/python server/fetch_models.py ...` |
+| 5. Launch | double-click `run.command` | double-click `run.bat`; `stop.bat` | `./run-linux.sh`; `./stop-linux.sh` |
+| 6. Use | open `http://127.0.0.1:8730/`, allow mic, pick agent, talk | same | same |
 
-`fetch_models.py` is pure Python with `pathlib` paths, so the same flags work on both OSes; only the
-interpreter path differs.
+`fetch_models.py` is pure Python with `pathlib`, so the same flags work everywhere.
 
-### Mac ↔ Windows differences
+### Platform differences
 
-| Thing | macOS / Linux | Windows |
-|---|---|---|
-| Python launcher | `python3.12` / `python3` | `py -3.12` (setup), then `.venv\Scripts\python.exe` |
-| venv activate | `source .venv/bin/activate` | `.venv\Scripts\Activate.ps1` (PowerShell) / `.venv\Scripts\activate.bat` (cmd) |
-| venv interpreter | `.venv/bin/python` | `.venv\Scripts\python.exe` |
-| Run a script | `./setup.sh`, `./run.command` | `setup.bat`, `run.bat` (or `.\setup.ps1`) |
-| Path separator | `/` | `\` (Python code uses `pathlib`; `/` also works in config.json) |
-| Home dir / models | `~/.voice-loop/models` | `%USERPROFILE%\.voice-loop\models` (same `Path.home()` code) |
-| config.json / .env | `server/config.json`, `server/.env` | `server\config.json`, `server\.env` (same place, repo-relative) |
-| `.env` loading | `run.sh` sources it; bridge also loads it | bridge loads it itself (no `source` in cmd/PowerShell) |
-| Log file | `/tmp/voice-widget.log` | `%TEMP%\voice-widget.log` |
-| Open URL | `open URL` | `start "" URL` / `Start-Process URL` |
-| Stop bridge | Ctrl+C / `pkill -f bridge.py` | `stop.bat` / Task Manager |
-| Pi command | `pi` on PATH | `pi.cmd` (npm shim); bridge resolves it via `shutil.which`. Quote paths with spaces: `"C:/Tools/pi.cmd" --mode json {text}` |
-| espeak-ng lookup | found on system lib path | bridge auto-sets `PHONEMIZER_ESPEAK_LIBRARY` to `C:\Program Files\eSpeak NG\libespeak-ng.dll` if unset |
-| Launch gatekeeping | Gatekeeper: right-click → Open once | SmartScreen / Mark-of-the-Web (below) |
-| Script policy | n/a | PowerShell execution policy — `.bat` wrappers pass `-ExecutionPolicy Bypass` for that run only |
-| Torch | MPS (Apple GPU) or CPU | CPU wheel (setup default) or CUDA wheel for NVIDIA |
-| Server STT | mlx-whisper / Parakeet (Apple Silicon) | not available; use in-browser Whisper (see below) |
+| Thing | macOS | Windows | Linux |
+|---|---|---|---|
+| Python | `python3.12` | `py -3.12` → `.venv\Scripts\python.exe` | `python3.12` |
+| venv activate | `source .venv/bin/activate` | `.venv\Scripts\Activate.ps1` / `activate.bat` | `source .venv/bin/activate` |
+| Run scripts | `./setup.sh`, `./run.command` | `setup.bat`, `run.bat` | `./setup.sh`, `./run-linux.sh` |
+| Path separator | `/` | `\` (`/` ok in config.json) | `/` |
+| Models dir | `~/.voice-loop/models` | `%USERPROFILE%\.voice-loop\models` | `~/.voice-loop/models` |
+| Config | `server/config.json`, `server/.env` | `server\config.json`, `server\.env` | `server/config.json`, `server/.env` |
+| `.env` loading | bridge loads it (run.sh also sources) | bridge loads it | bridge loads it |
+| Background log | `/tmp/voice-widget.log` | `%TEMP%\voice-widget.log` | `/tmp/voice-widget.log` (nohup) |
+| Open URL | `open` | `start ""` / `Start-Process` | `xdg-open` (prints URL if missing / no display) |
+| Stop | Ctrl+C / `pkill -f bridge.py` | `stop.bat` | `./stop-linux.sh` |
+| Pi command | `pi` | `pi.cmd` (resolved via `shutil.which`) | `pi` |
+| espeak-ng install | brew | choco / MSI | apt / dnf / pacman |
+| espeak-ng lookup | system lib path (`.dylib` fallback) | auto-set to `C:\Program Files\eSpeak NG\libespeak-ng.dll` | `find_library`, fallback glob over `/usr/lib/*-linux-gnu`, `/usr/lib64`, `/usr/lib` for `libespeak-ng.so*` |
+| Launch gatekeeping | Gatekeeper right-click → Open | SmartScreen "Run anyway" / Unblock | none (`chmod +x` is tracked in git) |
+| Torch | MPS or CPU | CPU wheel (setup.ps1) or CUDA | CPU wheel (setup.sh) or CUDA |
+| Server STT | mlx-whisper / Parakeet | not available → in-browser Whisper | not available → in-browser Whisper |
+| Mic permission | System Settings → Privacy → Microphone | Settings → Privacy → Microphone | browser prompt (PipeWire/PulseAudio must expose the mic) |
+
+### Speech-to-text by platform
+Server-side fast STT (**mlx-whisper**, **Parakeet-MLX**) is **Apple-Silicon-only**. On **Windows and Linux**
+the STT path is the **in-browser Whisper** (default, offline). Future native speed options for Windows/Linux:
+**faster-whisper** (CTranslate2, MIT) or **whisper.cpp** (MIT) behind `/stt` — **not wired in yet**; `/stt`
+returns 501 Not Implemented on non-Mac.
+
+### Linux notes
+- espeak-ng comes from your distro and is never bundled. If phonemizer still can't find it, set
+  `PHONEMIZER_ESPEAK_LIBRARY=/usr/lib/x86_64-linux-gnu/libespeak-ng.so.1` in `server/.env`.
+- `setup.sh` never runs `sudo`; it prints the install command for espeak-ng / Python 3.12.
+- Many distros now ship Python 3.13 as `python3`; Kokoro needs <3.13, so install 3.12 alongside.
 
 ### Windows notes
 - **SmartScreen / downloaded files:** a `.bat` from a downloaded ZIP carries Mark-of-the-Web. Windows may

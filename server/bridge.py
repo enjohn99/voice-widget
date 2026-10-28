@@ -52,6 +52,17 @@ def _wire_espeak_windows():
     libespeak-ng.dll on its own, so point it at the standard install location if the user hasn't.
     Also strip stray quotes: phonemizer treats a quoted value as a relative path and fails."""
     if not IS_WIN:
+        # Linux/macOS: phonemizer finds libespeak-ng.so via ctypes.find_library; add a fallback for
+        # distros where that fails (no ldconfig cache / unusual multiarch dir).
+        if not os.environ.get("PHONEMIZER_ESPEAK_LIBRARY"):
+            import ctypes.util, glob
+            if not ctypes.util.find_library("espeak-ng"):
+                for pat in ("/usr/lib/x86_64-linux-gnu/libespeak-ng.so*", "/usr/lib/aarch64-linux-gnu/libespeak-ng.so*",
+                            "/usr/lib64/libespeak-ng.so*", "/usr/lib/libespeak-ng.so*",
+                            "/opt/homebrew/lib/libespeak-ng.dylib", "/usr/local/lib/libespeak-ng.*"):
+                    hits = sorted(glob.glob(pat))
+                    if hits:
+                        os.environ["PHONEMIZER_ESPEAK_LIBRARY"] = hits[0]; break
         return
     for k in ("PHONEMIZER_ESPEAK_LIBRARY", "PHONEMIZER_ESPEAK_PATH"):
         if os.environ.get(k):
