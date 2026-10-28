@@ -1,0 +1,21 @@
+voice-widget
+Copyright (c) 2026 Eon John
+
+This product bundles no third-party model weights. It depends on, and (at setup time) downloads,
+the following projects. Keep their LICENSE/NOTICE files when redistributing, and credit each:
+
+- Kokoro-82M (hexgrad/Kokoro-82M) .......... Apache-2.0 (model weights)  https://huggingface.co/hexgrad/Kokoro-82M
+- kokoro (hexgrad/kokoro) .................. Apache-2.0 (inference lib)   https://github.com/hexgrad/kokoro
+- misaki (hexgrad/misaki) .................. Apache-2.0 (G2P)             https://github.com/hexgrad/misaki
+- phonemizer-fork / espeak-ng loader ....... GPL-3.0-or-later  (runtime phonemizer; see THIRD_PARTY_LICENSES.md)
+- OpenAI Whisper weights ................... MIT                         https://github.com/openai/whisper
+- whisper.cpp (ggml-org/whisper.cpp) ....... MIT (if the WASM build is used)
+- transformers.js (huggingface) ............ Apache-2.0 (in-browser STT runtime)
+- Parakeet TDT 0.6B (NVIDIA) ............... CC-BY-4.0 (optional STT weights; attribution required)
+- FastAPI (MIT), uvicorn (BSD-3), starlette (BSD-3), numpy (BSD-3), soundfile (BSD-3), torch (BSD-3)
+
+UX inspired by OpenWhisper (malukenho/OpenWhisper, MIT). No OpenWhisper code is used or included.
+
+espeak-ng is NOT included in this repository or its release artifacts. Users install it separately
+(brew / apt / choco install espeak-ng / official espeak-ng.msi). Model weights are likewise not included;
+fetch_models.py downloads them from their original publishers at setup time.

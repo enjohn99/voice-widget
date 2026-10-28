@@ -1,0 +1,45 @@
+{
+  "_comment": "Generic, deployment-neutral config for the voice widget bridge. Copy to config.json and edit. Every key is overridable by an env var (see .env.example). Nothing here is tied to one machine or one agent.",
+
+  "server": {
+    "host": "127.0.0.1",
+    "port": 8730,
+    "serve_widget": true,
+    "widget_dir": "../web"
+  },
+
+  "auth": {
+    "require_token": false,
+    "token": ""
+  },
+
+  "stt": {
+    "backend": "transformers-js",
+    "model_id": "onnx-community/whisper-base",
+    "model_assets_url": "/models/whisper",
+    "allow_web_speech_fallback": false,
+    "note": "STT runs IN THE BROWSER (offline WASM). These values are served to the widget via /config. Web Speech API fallback is OFF by default because it sends audio to a cloud service."
+  },
+
+  "kokoro": {
+    "enabled": true,
+    "voice": "af_heart",
+    "speed": 1.0,
+    "lang_code": "a",
+    "sample_rate": 24000,
+    "device": "auto",
+    "model_dir": "",
+    "voice_loop_path": ""
+  },
+
+  "agents": [
+    {
+      "id": "default",
+      "name": "Local agent",
+      "cmd": "pi --mode json {text}",
+      "mode": "pi-json",
+      "cwd": "",
+      "system": ""
+    }
+  ]
+}

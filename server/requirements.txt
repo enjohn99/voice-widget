@@ -1,0 +1,15 @@
+# Bridge server (cross-platform). Install into a venv (see ../setup.sh).
+fastapi>=0.110
+uvicorn>=0.27
+anyio>=4.0
+numpy
+soundfile
+
+# --- TTS (Kokoro) : pulls torch, misaki[en] (Apache-2.0), spacy, transformers ---
+# NOTE: misaki pulls phonemizer-fork + espeak-ng loader (GPL-3.0). See THIRD_PARTY_LICENSES.md.
+kokoro>=0.9.4
+
+# --- OPTIONAL server-side STT on Apple Silicon (not needed for in-browser WASM STT) ---
+# mlx-whisper          # default accurate STT, Apple Silicon only
+# parakeet-mlx         # English-only fast STT, Apple Silicon only
+# huggingface_hub      # used by fetch_models.py at SETUP time only (runtime stays offline)

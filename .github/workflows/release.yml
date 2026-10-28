@@ -1,0 +1,52 @@
+# Release workflow: on a version tag (v*), build a per-OS zip of the source package and attach it
+# to a GitHub Release. Artifacts contain ONLY this repo's code, scripts and docs:
+#   - NO model weights (users run fetch_models.py after install)
+#   - NO espeak-ng (GPL-3.0; users install it separately via brew / apt / choco / MSI)
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write   # needed to create the release and upload assets
+
+jobs:
+  package:
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            label: macos
+          - os: windows-latest
+            label: windows
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # Quick sanity check: the Python sources compile on this OS.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Syntax check
+        run: python -m py_compile server/bridge.py server/fetch_models.py server/mock_pi.py
+
+      # `git archive` packs only tracked files, so anything in .gitignore (weights, venvs, configs,
+      # espeak-ng) can never leak into the artifact.
+      - name: Build zip
+        shell: bash
+        run: |
+          NAME="voice-widget-${GITHUB_REF_NAME}-${{ matrix.label }}"
+          git archive --format=zip --prefix="${NAME}/" -o "${NAME}.zip" HEAD
+          # Guard: fail if any weight/binary slipped in.
+          if unzip -l "${NAME}.zip" | grep -Ei '\.(onnx|pt|pth|bin|safetensors|msi|exe|dll)$'; then
+            echo "Forbidden binary in artifact"; exit 1
+          fi
+          echo "ZIP=${NAME}.zip" >> "$GITHUB_ENV"
+
+      # Creates the release on the first job and appends the second OS's zip.
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.ZIP }}
+          generate_release_notes: true

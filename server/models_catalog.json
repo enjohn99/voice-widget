@@ -1,0 +1,90 @@
+{
+  "_comment": "Neutral model catalog. role: stt-browser | stt-server | tts. 'source' is an HF repo id or URL; weights are DOWNLOADED on demand, never shipped in the repo. Sizes are approximate.",
+  "models": [
+    {
+      "id": "whisper-base-onnx",
+      "role": "stt-browser",
+      "name": "Whisper base (in-browser WASM)",
+      "source": "onnx-community/whisper-base",
+      "runtime": "transformers.js (WASM/WebGPU, runs in the browser tab)",
+      "approx_mb": 145,
+      "accuracy": "lower",
+      "license": "MIT (OpenAI Whisper weights) / Apache-2.0 (transformers.js runtime)",
+      "notes": "Fully offline in the browser. No bridge needed for STT. Best for privacy + simple setup; lower accuracy than server mlx.",
+      "platforms": [
+        "macos",
+        "windows",
+        "linux"
+      ]
+    },
+    {
+      "id": "whisper-tiny-onnx",
+      "role": "stt-browser",
+      "name": "Whisper tiny (in-browser WASM)",
+      "source": "onnx-community/whisper-tiny",
+      "runtime": "transformers.js (WASM/WebGPU)",
+      "approx_mb": 42,
+      "accuracy": "lowest",
+      "license": "MIT / Apache-2.0",
+      "notes": "Fastest, smallest, lowest accuracy. Good for weak hardware.",
+      "platforms": [
+        "macos",
+        "windows",
+        "linux"
+      ]
+    },
+    {
+      "id": "mlx-whisper-large-v3-turbo",
+      "role": "stt-server",
+      "name": "mlx-whisper large-v3-turbo (server, Apple Silicon)",
+      "source": "mlx-community/whisper-large-v3-turbo",
+      "runtime": "mlx-whisper on the bridge (MPS). Browser streams audio to the bridge /stt endpoint.",
+      "approx_mb": 1600,
+      "accuracy": "highest",
+      "license": "MIT (Whisper weights); mlx-whisper MIT",
+      "notes": "Default STT in Eon's existing voice-loop. Most accurate; requires the bridge + Apple Silicon. Apple Silicon only; on Windows/Linux use in-browser Whisper.",
+      "platforms": [
+        "macos-arm64"
+      ]
+    },
+    {
+      "id": "parakeet-tdt-0.6b",
+      "role": "stt-server",
+      "name": "Parakeet TDT 0.6B (server, English-only)",
+      "source": "mlx-community/parakeet-tdt-0.6b-v2",
+      "runtime": "parakeet-mlx on the bridge (MPS).",
+      "approx_mb": 1200,
+      "accuracy": "high",
+      "license": "CC-BY-4.0 (NVIDIA Parakeet weights) \u2014 attribution required; parakeet-mlx Apache-2.0",
+      "notes": "English only. Very fast on Apple Silicon. Verify the weight repo's license tag before redistribution; attribution required, NOT bundled. Apple Silicon only; on Windows/Linux use in-browser Whisper.",
+      "platforms": [
+        "macos-arm64"
+      ]
+    },
+    {
+      "id": "kokoro-82m",
+      "role": "tts",
+      "name": "Kokoro-82M (TTS)",
+      "source": "hexgrad/Kokoro-82M",
+      "runtime": "kokoro (KPipeline) on the bridge (MPS/CPU).",
+      "approx_mb": 330,
+      "accuracy": "n/a",
+      "license": "Apache-2.0 (weights). Runtime pulls misaki (Apache-2.0) + espeak-ng (GPL-3.0, system/loader binary).",
+      "voices": [
+        "af_heart",
+        "af_bella",
+        "af_sarah",
+        "am_adam",
+        "am_michael",
+        "bf_emma",
+        "bm_george"
+      ],
+      "notes": "Matches Eon's voice-loop (voice af_heart, lang_code a, 24kHz). Voices are small .pt files downloaded per voice.",
+      "platforms": [
+        "macos",
+        "windows",
+        "linux"
+      ]
+    }
+  ]
+}

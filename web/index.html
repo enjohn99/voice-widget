@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Voice Widget</title>
+  <link rel="stylesheet" href="widget.css" />
+</head>
+<body>
+  <!-- OpenWhisper-style floating pill. Idle = compact; expands on hover/active. -->
+  <div id="pill" class="pill idle" role="region" aria-label="Voice widget">
+    <button id="micBtn" class="mic" title="Start / stop listening" aria-label="Start or stop listening">
+      <span class="mic-icon"></span>
+    </button>
+
+    <div class="pill-body">
+      <canvas id="wave" class="wave" width="180" height="28" aria-hidden="true"></canvas>
+      <div id="status" class="status">Idle</div>
+      <div id="partial" class="partial" aria-live="polite"></div>
+
+      <div class="row">
+        <select id="agentSel" class="sel" title="Agent session" aria-label="Agent session"></select>
+        <button id="gearBtn" class="gear" title="Settings" aria-label="Settings">⚙</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings + model manager drawer -->
+  <div id="drawer" class="drawer hidden" role="dialog" aria-label="Settings">
+    <div class="drawer-head">
+      <strong>Settings</strong>
+      <button id="closeDrawer" class="x" aria-label="Close">×</button>
+    </div>
+
+    <nav class="tabs">
+      <button class="tab active" data-tab="general">General</button>
+      <button class="tab" data-tab="sessions">Sessions</button>
+      <button class="tab" data-tab="models">Models</button>
+      <button class="tab" data-tab="voice">Voice</button>
+    </nav>
+
+    <section class="tabpane" data-pane="general">
+      <label>Kokoro server (bridge) address
+        <input id="bridgeUrl" type="text" placeholder="http://127.0.0.1:8730" />
+      </label>
+      <label>STT mode
+        <select id="sttMode">
+          <option value="transformers-js">In-browser WASM (offline, lower accuracy)</option>
+          <option value="server-mlx">Server mlx-whisper / Parakeet (faster, needs bridge)</option>
+          <option value="web-speech">Web Speech API (ONLINE — not offline)</option>
+        </select>
+      </label>
+      <button id="saveGeneral" class="primary">Save</button>
+    </section>
+
+    <section class="tabpane hidden" data-pane="sessions">
+      <div id="sessionList"></div>
+      <fieldset>
+        <legend>Add / edit session</legend>
+        <input id="sId" placeholder="id (e.g. work)" />
+        <input id="sName" placeholder="name (e.g. Work repo)" />
+        <input id="sCmd" placeholder="cmd (e.g. pi --mode json {text})" />
+        <input id="sCwd" placeholder="cwd (optional, e.g. /path/to/repo)" />
+        <button id="saveSession" class="primary">Save session</button>
+      </fieldset>
+    </section>
+
+    <section class="tabpane hidden" data-pane="models">
+      <div class="role-group" data-role="stt-browser"><h4>Speech-to-text (in-browser)</h4><div class="mlist"></div></div>
+      <div class="role-group" data-role="stt-server"><h4>Speech-to-text (server, Apple Silicon)</h4><div class="mlist"></div></div>
+      <div class="role-group" data-role="tts"><h4>Text-to-speech</h4><div class="mlist"></div></div>
+      <p class="hint">LLM model is set by your Pi agent; the bridge reads Pi's configured model (display-only unless Pi exposes a model flag per session).</p>
+    </section>
+
+    <section class="tabpane hidden" data-pane="voice">
+      <label>Voice <select id="voiceSel"></select></label>
+      <label>Speed <input id="speedSel" type="range" min="0.5" max="1.5" step="0.05" value="1.0" /><span id="speedVal">1.0×</span></label>
+      <label>Playback volume <input id="volSel" type="range" min="0" max="1" step="0.05" value="1.0" /></label>
+      <button id="saveVoice" class="primary">Save</button>
+    </section>
+  </div>
+
+  <script src="model-manager.js"></script>
+  <script src="widget.js"></script>
+</body>
+</html>

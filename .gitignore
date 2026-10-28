@@ -1,0 +1,49 @@
+# --- model weights / downloads (fetched at setup by fetch_models.py, never committed) ---
+*.onnx
+*.onnx_data
+*.bin
+*.pt
+*.pth
+*.safetensors
+*.gguf
+*.ggml
+*.npz
+web/models/
+models/
+downloads/
+.voice-loop/
+.cache/
+hf_cache/
+huggingface/
+# --- espeak-ng (GPL-3.0, installed separately, never bundled) ---
+*.msi
+espeak-ng*/
+espeak-ng-data/
+libespeak-ng.*
+# --- python envs / caches ---
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+# --- secrets / live config (config.example.json and .env.example stay tracked) ---
+.env
+server/.env
+server/config.json
+*.key
+*.pem
+secrets*
+!server/.env.example
+# --- node ---
+node_modules/
+# --- OS cruft ---
+.DS_Store
+Thumbs.db
+desktop.ini
+# --- build artifacts ---
+build/
+dist/
+*.exe
+*.spec
+*.zip
+*.log

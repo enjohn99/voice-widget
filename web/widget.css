@@ -1,0 +1,60 @@
+:root{
+  --bg:#1c1c1ee6; --fg:#f4f4f5; --muted:#a1a1aa; --accent:#6d5efc; --accent2:#22d3ee;
+  --rec:#f43f5e; --ok:#34d399; --radius:22px; --shadow:0 8px 30px rgba(0,0,0,.35);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:transparent}
+
+/* floating pill, bottom-center, like OpenWhisper's peel */
+.pill{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);
+  display:flex;align-items:center;gap:10px;background:var(--bg);color:var(--fg);
+  backdrop-filter:blur(14px);border:1px solid #ffffff1a;border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:8px 10px;transition:all .18s ease;max-width:92vw;z-index:9999}
+.pill.idle .pill-body{max-width:0;opacity:0;overflow:hidden;padding:0;margin:0}
+.pill:hover .pill-body,.pill.active .pill-body,.pill.open .pill-body{max-width:460px;opacity:1}
+.pill-body{display:flex;flex-direction:column;gap:6px;transition:all .18s ease}
+
+.mic{width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;flex:0 0 auto;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center}
+.mic .mic-icon{width:14px;height:20px;border-radius:7px;background:#fff;position:relative}
+.mic .mic-icon:after{content:"";position:absolute;left:50%;bottom:-8px;transform:translateX(-50%);
+  width:16px;height:8px;border:2px solid #fff;border-top:none;border-radius:0 0 9px 9px}
+.pill.listening .mic{background:var(--rec);animation:pulse 1.2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 #f43f5e66}70%{box-shadow:0 0 0 10px #f43f5e00}100%{box-shadow:0 0 0 0 #f43f5e00}}
+
+.wave{width:180px;height:28px;display:block}
+.status{font-size:12px;color:var(--muted)}
+.pill.listening .status{color:var(--rec)} .pill.speaking .status{color:var(--ok)}
+.partial{font-size:13px;min-height:16px;max-width:440px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row{display:flex;gap:8px;align-items:center}
+.sel{flex:1;background:#2a2a2e;color:var(--fg);border:1px solid #ffffff1f;border-radius:10px;padding:5px 8px;font-size:12px}
+.gear{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer}
+
+/* drawer */
+.drawer{position:fixed;right:18px;bottom:80px;width:360px;max-height:72vh;overflow:auto;
+  background:var(--bg);backdrop-filter:blur(14px);color:var(--fg);border:1px solid #ffffff1a;
+  border-radius:16px;box-shadow:var(--shadow);padding:14px;z-index:10000}
+.drawer.hidden,.hidden{display:none}
+.drawer-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.x{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer}
+.tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.tab{background:#2a2a2e;border:none;color:var(--muted);padding:6px 10px;border-radius:8px;cursor:pointer;font-size:12px}
+.tab.active{background:var(--accent);color:#fff}
+label{display:block;font-size:12px;color:var(--muted);margin:8px 0}
+input[type=text],input:not([type=range]),select{width:100%;background:#2a2a2e;color:var(--fg);
+  border:1px solid #ffffff1f;border-radius:10px;padding:7px 9px;font-size:13px;margin-top:4px}
+input[type=range]{width:100%}
+.primary{margin-top:10px;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:8px 14px;cursor:pointer;font-size:13px}
+fieldset{border:1px solid #ffffff1f;border-radius:10px;margin-top:12px}
+legend{font-size:11px;color:var(--muted)}
+.hint{font-size:11px;color:var(--muted);margin-top:10px}
+.role-group{margin-bottom:14px}
+.role-group h4{margin:6px 0;font-size:13px}
+.mrow{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#232327;
+  border:1px solid #ffffff14;border-radius:10px;padding:8px 10px;margin:6px 0}
+.mrow .meta{font-size:11px;color:var(--muted)}
+.mrow .btns{display:flex;gap:6px}
+.mrow button{font-size:11px;border:none;border-radius:8px;padding:5px 9px;cursor:pointer}
+.b-dl{background:#2a2a2e;color:var(--fg)} .b-sel{background:var(--accent);color:#fff}
+.b-active{background:var(--ok);color:#06281c} .prog{height:4px;background:var(--accent2);border-radius:2px;width:0}
